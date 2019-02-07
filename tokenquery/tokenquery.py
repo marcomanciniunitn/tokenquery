@@ -48,12 +48,15 @@ class TokenQuery:
         #     ranges.append(range(result[0],result[0])
         return final_results
 
-    def parse(self, token_query_string):
+   def parse(self, token_query_string):
         """
            Parsing token query string
         """
 
         parser_stack = Stack()
+        if parser_stack.is_empty() == False:
+            parser_stack.items = []
+
 
         parsed = []
         capturing_inside_a_token_mode = False
@@ -68,6 +71,9 @@ class TokenQuery:
         # shorthand modes
         expr_regex_shorthand_mode = False
         expr_string_shorthand_mode = False
+
+        active_operation = []
+        negated_operation = [] 
 
         for next_char in token_query_string:
             if self.verbose:
@@ -183,6 +189,10 @@ class TokenQuery:
                             item2 = parser_stack.pop()
                             op = parser_stack.pop()
                             item1 = parser_stack.pop()
+                            new_acceptor = {'opr1': item1,
+                                                'opr2': item2,
+                                                'type': 'comp_and'}
+
                             if op == '&':
                                 new_acceptor = {'opr1': item1,
                                                 'opr2': item2,
@@ -219,6 +229,12 @@ class TokenQuery:
                             item2 = parser_stack.pop()
                             op = parser_stack.pop()
                             item1 = parser_stack.pop()
+
+                            new_acceptor = {'opr1': item1,
+                                                'opr2': item2,
+                                                'type': 'comp_or'}
+                            
+
                             if op == '&':
                                 new_acceptor = {'opr1': item1,
                                                 'opr2': item2,
@@ -315,10 +331,13 @@ class TokenQuery:
 
                 if next_char == "[":
                     parser_stack = Stack()
+                    if parser_stack.is_empty() == False:
+                        parser_stack.items = []
                     capturing_inside_a_token_mode = True
                     continue
 
         return parsed
+
 
     def compile(self, parsed_token_regex):
         # add start node
