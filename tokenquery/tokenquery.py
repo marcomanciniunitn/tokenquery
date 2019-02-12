@@ -18,7 +18,7 @@ class TokenQuery:
         self.verbose = verbose
         parsed_token_query_string = self.parse(token_query_string)
         if self.verbose:
-            print (parsed_token_query_string)
+            print(parsed_token_query_string)
         self.machine = self.compile(parsed_token_query_string)
         if self.verbose:
             self.machine.print_state_machine()
@@ -48,15 +48,13 @@ class TokenQuery:
         #     ranges.append(range(result[0],result[0])
         return final_results
 
-   def parse(self, token_query_string):
+    def parse(self, token_query_string):
         """
            Parsing token query string
         """
-
         parser_stack = Stack()
         if parser_stack.is_empty() == False:
             parser_stack.items = []
-
 
         parsed = []
         capturing_inside_a_token_mode = False
@@ -73,12 +71,12 @@ class TokenQuery:
         expr_string_shorthand_mode = False
 
         active_operation = []
-        negated_operation = [] 
+        negated_operation = []
 
         for next_char in token_query_string:
             if self.verbose:
-                print ('next char : ', next_char)
-                print ('current stack : ', parser_stack.items)
+                print('next char : ', next_char)
+                print('current stack : ', parser_stack.items)
                 # print ('capturing_inside_a_token_mode : ', capturing_inside_a_token_mode)
                 # print ('expr_regex_shorthand_mode : ', expr_regex_shorthand_mode)
                 # print ('expr_string_shorthand_mode : ', expr_string_shorthand_mode)
@@ -185,13 +183,13 @@ class TokenQuery:
                         not_mode = True
 
                     elif next_char == ")":
-                        while(parser_stack.size() > 2):
+                        while (parser_stack.size() > 2):
                             item2 = parser_stack.pop()
                             op = parser_stack.pop()
                             item1 = parser_stack.pop()
                             new_acceptor = {'opr1': item1,
-                                                'opr2': item2,
-                                                'type': 'comp_and'}
+                                            'opr2': item2,
+                                            'type': 'comp_and'}
 
                             if op == '&':
                                 new_acceptor = {'opr1': item1,
@@ -225,15 +223,14 @@ class TokenQuery:
                             continue
 
                     elif next_char == "]":
-                        while(parser_stack.size() > 2):
+                        while (parser_stack.size() > 2):
                             item2 = parser_stack.pop()
                             op = parser_stack.pop()
                             item1 = parser_stack.pop()
 
                             new_acceptor = {'opr1': item1,
-                                                'opr2': item2,
-                                                'type': 'comp_or'}
-                            
+                                            'opr2': item2,
+                                            'type': 'comp_or'}
 
                             if op == '&':
                                 new_acceptor = {'opr1': item1,
@@ -290,7 +287,9 @@ class TokenQuery:
                         repetition = 0
 
                     else:
-                        raise ValueError('Parser is not able to parse {} beacuse of invalid repetition char {} .'.format(token_query_string, char))
+                        raise ValueError(
+                            'Parser is not able to parse {} beacuse of invalid repetition char {} .'.format(
+                                token_query_string, char))
                     continue
 
                 if capture_mode_name != None:
@@ -337,7 +336,6 @@ class TokenQuery:
                     continue
 
         return parsed
-
 
     def compile(self, parsed_token_regex):
         # add start node
@@ -397,7 +395,7 @@ class TokenQuery:
 
                 elif item['value']:
                     if item['value'] > 1:
-                        for i in range(item['value']-1):
+                        for i in range(item['value'] - 1):
                             next_state = State('state ' + str(state_counter), capture_name, self.acceptors)
                             states.append(next_state)
                             state_counter += 1
@@ -410,20 +408,20 @@ class TokenQuery:
                 # repetition starts from 1
                 source_state = prev_state  # current_state
                 if item['end'] - item['start'] > 0:
-                    for i in range(item['end']-item['start']):
-                            next_state = State('state ' + str(state_counter), capture_name, self.acceptors)
-                            states.append(next_state)
-                            state_counter += 1
-                            current_state.add_a_next(prev_segment, next_state)
-                            #if i > 0:
-                            source_state.add_a_next(prev_segment, next_state)
+                    for i in range(item['end'] - item['start']):
+                        next_state = State('state ' + str(state_counter), capture_name, self.acceptors)
+                        states.append(next_state)
+                        state_counter += 1
+                        current_state.add_a_next(prev_segment, next_state)
+                        # if i > 0:
+                        source_state.add_a_next(prev_segment, next_state)
 
-                            # machine.add_a_transition(Transition(prev_segment, current_state, next_state))
-                            prev_state = current_state
-                            current_state = next_state
+                        # machine.add_a_transition(Transition(prev_segment, current_state, next_state))
+                        prev_state = current_state
+                        current_state = next_state
 
                 if item['start'] > 1:
-                    for i in range(item['start']-1):
+                    for i in range(item['start'] - 1):
                         next_state = State('state ' + str(state_counter), capture_name, self.acceptors)
                         states.append(next_state)
                         state_counter += 1
